@@ -1,20 +1,78 @@
-m:context
-  m:set
-    first_function
-    m:later
-      m:testing.log
-        defined first
-  m:set
-    second_function
-    m:later
-      m:testing.log
-        defined second
-  m:now
-    second_function
-  m:now
-    first_function
-  m:assert
+call
+  block
     data
-      defined second
-      defined first
-    m:testing_logs
+      cgs.context
+    block
+      call
+        block
+          data
+            cgs.set
+          block
+            data
+              first_function
+            call
+              block
+                data
+                  ln.later
+                block
+                  call
+                    block
+                      data
+                        testing.log
+                      block
+                        data
+                          defined first
+      call
+        block
+          data
+            cgs.set
+          block
+            data
+              second_function
+            call
+              block
+                data
+                  ln.later
+                block
+                  call
+                    block
+                      data
+                        testing.log
+                      block
+                        data
+                          defined second
+      call
+        block
+          data
+            ln.now
+          call
+            block
+              data
+                cgs.get
+              block
+                data
+                  second_function
+      call
+        block
+          data
+            ln.now
+          call
+            block
+              data
+                cgs.get
+              block
+                data
+                  first_function
+      call
+        block
+          data
+            testing.assert
+          block
+            data
+              defined second
+              defined first
+            call
+              block
+                data
+                  testing.logs
+                block

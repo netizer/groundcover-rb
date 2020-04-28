@@ -12,7 +12,9 @@ To achieve the goal nr 2, we'll just make it a superset of Forest, and will add 
 
 To build a language (X) on top of forest we'll need:
 1. A forest code that will be used as a compiler of every file written in X
-2. A set of modules in the host language that are specific for code written in X
+2. A set of modules in forest language, that can be included by the former
+
+(have in mind that every module written in forest has a list of 2-word names of capabilities that it depends on; you can choose the actual module providing these capablities; 2-word names are for example like follows: `math kher`, where the second name is a variant of the interface of the `math` module; there might be several implementations of the same interface, and w different modules with the same first word can have the same interface)
 
 ## Re 2.
 
