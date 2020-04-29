@@ -43,13 +43,26 @@ class Interpretter
       raise "Unknown template '#{tree[:command]}'" unless found
 
       replacement = found[:children][1][:children][0]
-      new_tree = apply_template(tree, replacement)
+      new_tree_or_trees = apply_template(tree, replacement)
       # we repeat until there are no macros left in thesubtree
-      apply_templates(new_tree, template_tree)
-    else
-      tree[:children].each_with_index do |child, index|
-        tree[:children][index] = apply_templates(child, template_tree)
+      if new_tree_or_trees.is_a?(Array)
+        new_tree_or_trees.map do |new_tree|
+          apply_templates(new_tree, template_tree)
+        end
+      else
+        apply_templates(new_tree_or_trees, template_tree)
       end
+    else
+      new_children = []
+      tree[:children].each_with_index do |child, index|
+        child_or_children = apply_templates(child, template_tree)
+        if child_or_children.is_a?(Array)
+          new_children += child_or_children
+        else
+          new_children << child_or_children
+        end
+      end
+      tree[:children] = new_children
       tree
     end
   end
@@ -122,6 +135,7 @@ class Interpretter
     tree[:children].length.times do |id|
       substitutions["$body:#{id + 1}"] = tree[:children][id]
     end
+    substitutions['$body'] = tree[:children]
     cloned = deep_clone(replacement_node)
     substitute_keywords_with_trees(cloned, substitutions)
   end
@@ -134,8 +148,14 @@ class Interpretter
         return replacement
       end
     end
-    children = tree[:children].map do |child|
-      substitute_keywords_with_trees(child, map)
+    children = []
+    tree[:children].each do |child|
+      child_or_children = substitute_keywords_with_trees(child, map)
+      if child_or_children.is_a?(Array)
+        children += child_or_children
+      else
+        children << child_or_children
+      end
     end
     tree[:children] = children
     tree

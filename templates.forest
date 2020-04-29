@@ -8,8 +8,7 @@ block
           data
             testing.assert
           block
-            $body:1
-            $body:2
+            $body
   block
     data
       m:testing_logs
@@ -28,11 +27,7 @@ block
           data
             cgs.context
           block
-            $body:1
-            $body:2
-            $body:3
-            $body:4
-            $body:5
+            $body
   block
     data
       m:set
@@ -69,7 +64,7 @@ block
           data
             ln.later
           block
-            $body:1
+            $body
   block
     data
       m:testing_log
@@ -80,4 +75,4 @@ block
             testing.log
           block
             data
-              $body:1
+              $body
