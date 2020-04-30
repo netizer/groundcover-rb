@@ -1,17 +1,21 @@
 require 'byebug'
 
-class Interpretter
+class Interpreter
   INDENTATION_BASE = 2
   TEMPLATE_FILE = 'templates.forest'
+
+  def eval_file_and_write(file)
+    output_content = eval_file(file)
+    output_file = convert_file_name(file)
+    write(output_file, output_content)
+  end
 
   def eval_file(file)
     templates_tree = eval_templates
     files_content = read(file)
     tree = parse(files_content)
     new_tree = apply_templates(tree, templates_tree)
-    output_file = convert_file_name(file)
-    output_content = deparse(new_tree)
-    write(output_file, output_content)
+    deparse(new_tree)
   end
 
   private
@@ -184,6 +188,3 @@ class Interpretter
     }
   end
 end
-
-file_name = ARGV.first
-Interpretter.new.eval_file(file_name)
