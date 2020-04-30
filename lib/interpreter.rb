@@ -11,10 +11,10 @@ class Interpreter
   end
 
   def eval_file(file)
-    templates_tree = eval_templates
+    map = eval_templates
     files_content = read(file)
     tree = parse(files_content)
-    new_tree = apply_templates(tree, templates_tree)
+    new_tree = apply_templates(tree, map).first
     deparse(new_tree)
   end
 
@@ -22,7 +22,14 @@ class Interpreter
 
   def eval_templates
     files_content = read(TEMPLATE_FILE)
-    parse(files_content)
+    tree = parse(files_content)
+    map = {}
+    tree[:children].each do |child|
+      key = child[:children][0][:children][0][:command]
+      value = child[:children][1][:children]
+      map[key] = value
+    end
+    map
   end
 
   def read(file)
@@ -36,39 +43,6 @@ class Interpreter
       current_node = parse_line(line, current_node)
     end
     root_node
-  end
-
-  def apply_templates(tree, template_tree)
-    template_name = tree[:command]
-
-    if template_name[/^m:/]
-      templates = template_tree[:children]
-      found = templates.find {|d| d[:children][0][:children][0][:command] == template_name }
-      raise "Unknown template '#{tree[:command]}'" unless found
-
-      replacement = found[:children][1][:children][0]
-      new_tree_or_trees = apply_template(tree, replacement)
-      # we repeat until there are no macros left in thesubtree
-      if new_tree_or_trees.is_a?(Array)
-        new_tree_or_trees.map do |new_tree|
-          apply_templates(new_tree, template_tree)
-        end
-      else
-        apply_templates(new_tree_or_trees, template_tree)
-      end
-    else
-      new_children = []
-      tree[:children].each_with_index do |child, index|
-        child_or_children = apply_templates(child, template_tree)
-        if child_or_children.is_a?(Array)
-          new_children += child_or_children
-        else
-          new_children << child_or_children
-        end
-      end
-      tree[:children] = new_children
-      tree
-    end
   end
 
   def deparse(tree, indent = 0)
@@ -134,35 +108,51 @@ class Interpreter
     end
   end
 
-  def apply_template(tree, replacement_node)
-    substitutions = {}
-    tree[:children].length.times do |id|
-      substitutions["$body:#{id + 1}"] = tree[:children][id]
+  def apply_templates(tree, map)
+    replacements = map[tree[:command]]
+
+    if replacements
+      new_trees = apply_template(tree, replacements)
+      # we repeat until there are no macros left in the subtree
+      trees = []
+      new_trees.each do |new_tree|
+        trees += apply_templates(new_tree, map)
+      end
+      trees
+    else
+      new_children = []
+      tree[:children].each do |child|
+        new_children += apply_templates(child, map)
+      end
+      tree[:children] = new_children
+      [tree]
     end
-    substitutions['$body'] = tree[:children]
-    cloned = deep_clone(replacement_node)
-    substitute_keywords_with_trees(cloned, substitutions)
   end
 
-  def substitute_keywords_with_trees(tree, map)
-    if (tree[:children] == [])
-      replacement_pair = map.find { |k, _v| tree[:command] == k }
-      if replacement_pair
-        replacement = replacement_pair.last
-        return replacement
-      end
+  def apply_template(tree, replacement_nodes)
+    substitutions = {}
+    tree[:children].length.times do |id|
+      substitutions["$body:#{id + 1}"] = [tree[:children][id]]
     end
+    substitutions['$body'] = tree[:children]
+    result = []
+    replacement_nodes.each do |replacement_node|
+      cloned = deep_clone(replacement_node)
+      result += tree_to_replacement_trees(cloned, substitutions)
+    end
+    result
+  end
+
+  def tree_to_replacement_trees(tree, map)
+    replacement = map[tree[:command]]
+    return replacement if replacement
+
     children = []
     tree[:children].each do |child|
-      child_or_children = substitute_keywords_with_trees(child, map)
-      if child_or_children.is_a?(Array)
-        children += child_or_children
-      else
-        children << child_or_children
-      end
+      children += tree_to_replacement_trees(child, map)
     end
     tree[:children] = children
-    tree
+    [tree]
   end
 
   def print_tree(tree, indentation = '')
