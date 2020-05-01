@@ -56,22 +56,26 @@ class Interpreter
   end
 
   def apply_templates(tree, map)
+    apply_templates_for_node(tree, map)
+  end
+
+  def apply_templates_for_nodes(trees, map)
+    new_trees = []
+    trees.each do |tree|
+      new_trees += apply_templates_for_node(tree, map)
+    end
+    new_trees
+  end
+
+  def apply_templates_for_node(tree, map)
     replacements = map[tree[:command]]
 
     if replacements
       new_trees = apply_template(tree, replacements)
       # we repeat until there are no macros left in the subtree
-      trees = []
-      new_trees.each do |new_tree|
-        trees += apply_templates(new_tree, map)
-      end
-      trees
+      apply_templates_for_nodes(new_trees, map)
     else
-      new_children = []
-      tree[:children].each do |child|
-        new_children += apply_templates(child, map)
-      end
-      tree[:children] = new_children
+      tree[:children] = apply_templates_for_nodes(tree[:children], map)
       [tree]
     end
   end
