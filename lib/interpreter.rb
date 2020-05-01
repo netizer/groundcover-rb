@@ -18,7 +18,7 @@ class Interpreter
     map = eval_templates
     files_content = read(file)
     tree = parse(files_content)
-    new_tree = apply_templates(tree, map).first
+    new_tree = apply_templates(tree, map)
     deparse(new_tree)
   end
 

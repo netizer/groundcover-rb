@@ -1,7 +1,26 @@
 require 'byebug'
 
+# 1. We have a groundcover tree and a templates.forest file
+# 2. We convert templates.forest to a template substitution map
+#    which is a map from names of special node names
+#    in the groundcover tree, to the templates.
+#    Have in mind that each template can contain a list of nodes,
+#    chich could be useful, but currently is not used.
+#    In that case the node would be replaced with multiple nodes
+#    on the same tree depth level.
+# 3. We traverse the groundcover tree searching for a node
+#    with a command matching any key from the template substitution map.
+# 4. For each such node:
+#    a) We create a argument substitution map
+#       from template erguments (e.g. `$body:0`) to node's children (`$body:0`)
+#       and groups of them (`$body`)
+#    b) We create a copy of the corresponding template.
+#    c) Then we the substitute template arguments (e.g. `$body:1`)
+#       with the node's children according to the argument substitution map.
+#    d) We replace the node with this template.
+#    e) We proceed with the same process for the whole branch
+#       that we just inserted.
 module GroundcoverInterpreter
-
   TEMPLATE_FILE = 'templates.forest'
 
   private
@@ -18,7 +37,7 @@ module GroundcoverInterpreter
   end
 
   def apply_templates(tree, map)
-    apply_templates_for_node(tree, map)
+    apply_templates_for_node(tree, map).first
   end
 
   def apply_templates_for_nodes(trees, map)
