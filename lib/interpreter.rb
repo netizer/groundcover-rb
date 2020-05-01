@@ -1,7 +1,9 @@
 require 'byebug'
+require 'forest_interpreter'
 
 class Interpreter
-  INDENTATION_BASE = 2
+  include ForestInterpreter
+
   TEMPLATE_FILE = 'templates.forest'
 
   def eval_file_and_write(file)
@@ -32,19 +34,6 @@ class Interpreter
     map
   end
 
-  def read(file)
-    File.readlines(file)
-  end
-
-  def parse(lines)
-    current_node = create_node(0, lines[0], nil)
-    root_node = current_node
-    lines[1..-1].each do |line|
-      current_node = parse_line(line, current_node)
-    end
-    root_node
-  end
-
   def deparse(tree, indent = 0)
     head = " " * indent * INDENTATION_BASE + tree[:command]
     has_children = !tree[:children].empty?
@@ -63,48 +52,6 @@ class Interpreter
   def write(file_name, content)
     File.open(file_name, 'w') do |file|
       file.write(content)
-    end
-  end
-
-  def parse_line(line, current_node)
-    indent_level, line_content = extract_indentation(line)
-    ancestor_level = 1 + current_node[:indent] - indent_level
-    parent_node = ancestor(current_node, ancestor_level)
-    new_node = create_node(indent_level, line_content, parent_node)
-    parent_node[:children] << new_node
-    new_node
-  end
-
-  def ancestor(parent_node, ancestor_level)
-    ancestor_node = parent_node
-    ancestor_level.times do
-      ancestor_node = ancestor_node[:parent]
-    end
-    ancestor_node
-  end
-
-  def create_node(indent_level, line, parent)
-    command = line.strip
-    raise "Empty lines in source files are not supported" if command == ""
-
-    {
-      indent: indent_level,
-      contents: line,
-      parent: parent,
-      children: [],
-      command: command,
-      child_id: parent ? parent[:children].length : 0
-    }
-  end
-
-  def extract_indentation(line)
-    index = 0
-    line.each_char do |char|
-      if char == ' '
-        index += 1
-      else
-        return [index / INDENTATION_BASE, line[index..-1]]
-      end
     end
   end
 
@@ -153,14 +100,6 @@ class Interpreter
     end
     tree[:children] = children
     [tree]
-  end
-
-  def print_tree(tree, indentation = '')
-    puts "#{indentation}#{tree[:command]}"
-    tree[:children].each do |child|
-      print_tree(child, "#{indentation}  ")
-    end
-    nil
   end
 
   def deep_clone(tree)
