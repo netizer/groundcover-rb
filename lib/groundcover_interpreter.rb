@@ -9,13 +9,12 @@ module GroundcoverInterpreter
   def eval_templates
     files_content = read(TEMPLATE_FILE)
     tree = parse(files_content)
-    map = {}
-    tree[:children].each do |child|
+    tree[:children].reduce({}) do |map, child|
       key = child[:children][0][:children][0][:command]
       value = child[:children][1][:children]
       map[key] = value
+      map
     end
-    map
   end
 
   def apply_templates(tree, map)
@@ -23,11 +22,9 @@ module GroundcoverInterpreter
   end
 
   def apply_templates_for_nodes(trees, map)
-    new_trees = []
-    trees.each do |tree|
-      new_trees += apply_templates_for_node(tree, map)
+    trees.reduce([]) do |new_trees, tree|
+      new_trees + apply_templates_for_node(tree, map)
     end
-    new_trees
   end
 
   def apply_templates_for_node(tree, map)
@@ -35,7 +32,6 @@ module GroundcoverInterpreter
 
     if replacements
       new_trees = apply_template(tree, replacements)
-      # we repeat until there are no macros left in the subtree
       apply_templates_for_nodes(new_trees, map)
     else
       tree[:children] = apply_templates_for_nodes(tree[:children], map)
@@ -44,43 +40,37 @@ module GroundcoverInterpreter
   end
 
   def apply_template(tree, replacement_nodes)
+    substitutions = build_substitutions_hash(tree)
+    replacement_nodes.reduce([]) do |result, replacement_node|
+      cloned = deep_clone(replacement_node)
+      result + tree_to_replacement_trees(cloned, substitutions)
+    end
+  end
+
+  def build_substitutions_hash(tree)
     substitutions = {}
     tree[:children].length.times do |id|
       substitutions["$body:#{id + 1}"] = [tree[:children][id]]
     end
     substitutions['$body'] = tree[:children]
-    result = []
-    replacement_nodes.each do |replacement_node|
-      cloned = deep_clone(replacement_node)
-      result += tree_to_replacement_trees(cloned, substitutions)
-    end
-    result
+    substitutions
   end
 
   def tree_to_replacement_trees(tree, map)
     replacement = map[tree[:command]]
     return replacement if replacement
 
-    children = []
-    tree[:children].each do |child|
-      children += tree_to_replacement_trees(child, map)
+    tree[:children] = tree[:children].reduce([]) do |children, child|
+      children + tree_to_replacement_trees(child, map)
     end
-    tree[:children] = children
     [tree]
   end
 
-  def deep_clone(tree)
-    children = tree[:children].map do |child|
-      deep_clone(child)
-    end
-    copy_node(tree, children)
-  end
-
-  def copy_node(node, children)
+  def deep_clone(node)
     {
       parent: node[:parent],
       command: node[:command],
-      children: children
+      children: node[:children].map { |child| deep_clone(child) }
     }
   end
 end
