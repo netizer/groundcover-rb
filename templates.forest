@@ -42,6 +42,16 @@ block
             $body:2
   block
     data
+      m:get
+    data
+      call
+        block
+          data
+            cgs.get
+          data
+            $body:1
+  block
+    data
       m:now_by_name
     data
       call
@@ -55,6 +65,23 @@ block
               block
                 data
                   $body:1
+  block
+    data
+      m:now_by_name_with_args
+    data
+      call
+        block
+          data
+            ln.now_with_args
+          block
+            $body:2
+            call
+              block
+                data
+                  cgs.get
+                block
+                  data
+                    $body:1
   block
     data
       m:later
