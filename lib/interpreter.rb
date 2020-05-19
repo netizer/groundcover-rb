@@ -7,6 +7,15 @@ class Interpreter
   include GroundcoverInterpreter
 
   TEMPLATE_FILE = 'templates.forest'
+  DIRECTIONS = [:gc_to_forest, :forest_to_gc]
+
+  def initialize(direction = :gc_to_forest)
+    unless DIRECTIONS.include? direction
+      rise "Wrong interpretter parameter #{direction}"
+    end
+
+    @direction = direction
+  end
 
   def eval_file_and_write(file)
     output_content = eval_file(file)
@@ -15,7 +24,7 @@ class Interpreter
   end
 
   def eval_file(file)
-    map = eval_templates
+    map = eval_templates(@direction == :gc_to_forest)
     files_content = read(file)
     tree = parse(files_content)
     new_tree = apply_templates(tree, map)
@@ -25,6 +34,9 @@ class Interpreter
   private
 
   def deparse(tree, indent = 0)
+    if tree.is_a?(Array)
+      byebug
+    end
     head = " " * indent * INDENTATION_BASE + tree[:command]
     has_children = !tree[:children].empty?
     rest = has_children ? tree[:children].map do |ch|
