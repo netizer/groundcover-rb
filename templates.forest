@@ -5,31 +5,28 @@ block
         $body
     data
       call
+        data
+          testing.assert
         block
-          data
-            testing.assert
-          block
-            $body
+          $body
   block
     data
       m:testing_logs
     data
       call
+        data
+          testing.logs
         block
-          data
-            testing.logs
-          block
   block
     data
       m:context
         $body
     data
       call
+        data
+          cgs.context
         block
-          data
-            cgs.context
-          block
-            $body
+          $body
   block
     data
       m:set
@@ -37,40 +34,36 @@ block
         $body:2
     data
       call
+        data
+          cgs.set
         block
           data
-            cgs.set
-          block
-            data
-              $body:1
-            $body:2
+            $body:1
+          $body:2
   block
     data
       m:get
         $body:1
     data
       call
-        block
-          data
-            cgs.get
-          data
-            $body:1
+        data
+          cgs.get
+        data
+          $body:1
   block
     data
       m:now_by_name
         $body:1
     data
       call
-        block
+        data
+          ln.now
+        call
           data
-            ln.now
-          call
-            block
-              data
-                cgs.get
-              block
-                data
-                  $body:1
+            cgs.get
+          block
+            data
+              $body:1
   block
     data
       m:now_by_name_with_args
@@ -78,38 +71,34 @@ block
         $body:2
     data
       call
+        data
+          ln.now_with_args
         block
-          data
-            ln.now_with_args
-          block
-            $body:2
-            call
-              block
-                data
-                  cgs.get
-                block
-                  data
-                    $body:1
+          $body:2
+          call
+            data
+              cgs.get
+            block
+              data
+                $body:1
   block
     data
       m:later
         $body
     data
       call
+        data
+          ln.later
         block
-          data
-            ln.later
-          block
-            $body
+          $body
   block
     data
       m:testing_log
         $body
     data
       call
+        data
+          testing.log
         block
           data
-            testing.log
-          block
-            data
-              $body
+            $body
