@@ -8,86 +8,66 @@ module GroundcoverInterpreter
   def eval_templates(forward = true)
     files_content = read(TEMPLATE_FILE)
     tree = parse(files_content)
-    template_id = forward ? 0 : 1
-    replacement_id = forward ? 1 : 0
     tree[:children].reduce([]) do |patterns, child|
-      pattern = child[:children][template_id][:children][0]
-      replacement = child[:children][replacement_id][:children][0]
-      patterns << { pattern: pattern, replacement: replacement }
-      patterns
+      pattern = child[:children][forward ? 0 : 1][:children][0]
+      replacement = child[:children][forward ? 1 : 0][:children][0]
+      patterns + [{ pattern: pattern, replacement: replacement }]
     end
   end
 
   def apply_templates(tree, templates)
     return tree if tree[:command] == 'data'
 
-    processed_children = tree[:children].map do |child|
+    tree[:children] = tree[:children].map do |child|
       apply_templates(child, templates)
     end
-    tree[:children] = processed_children
-
     use_first_matching_template_or_copy(tree, templates)
   end
 
   def use_first_matching_template_or_copy(tree, templates)
-    templates.each_with_index do |template, id|
-      replacements = matches(template[:pattern], tree)
-      if replacements
-        return apply_template(template[:replacement], replacements)
-      end
+    templates.each do |template|
+      matches = find_matches(template[:pattern], tree)
+      return apply_template(template[:replacement], matches) if matches
     end
     tree
   end
 
-  def matches(pattern, tree)
+  def find_matches(pattern, tree)
     if pattern[:command][0] == '$'
-      [[pattern[:command], tree]]
+      { pattern[:command] => tree }
     elsif pattern[:command] != tree[:command]
       nil
     elsif tree[:children] == []
-      []
+      {}
+    elsif pattern[:children][0][:command] == '$body'
+      { '$body' => tree[:children] }
+    elsif pattern[:children].length != tree[:children].length
+      nil
     else
-      pattern_children = pattern[:children]
-      tree_children = tree[:children]
-      if (pattern_children.length == 1) && (pattern_children[0][:command] == '$body')
-        [['$body', tree[:children]]]
-      elsif pattern_children.length != tree_children.length
-        nil
-      else
-        matches_for_children(pattern_children, tree[:children])
-      end
+      pattern[:children].zip(tree[:children]).map do |pattern, tree|
+        find_matches(pattern, tree) || (return nil)
+      end.inject(&:merge)
     end
   end
 
-  def matches_for_children(pattern_children, tree_children)
-    results = []
-    pattern_children.zip(tree_children).each do |pattern, tree|
-      result = matches(pattern, tree)
-      return nil if result == nil
-
-      results += result
-    end
-    results
-  end
-
-  def apply_template(replacement, replacements)
-    map = replacements.to_h
-    new_replacement = deep_copy(replacement)
-    assign_new_branches(new_replacement, map)
+  def apply_template(replacement, matches)
+    apply_matches(deep_copy(replacement), matches)
   end
 
   def deep_copy(tree)
-    new_children = tree[:children].map {|child| deep_copy(child)}
-    { command: tree[:command], children: new_children }
+    {
+      command: tree[:command],
+      children: tree[:children].map { |child| deep_copy(child) }
+    }
   end
 
-  def assign_new_branches(tree, map)
+  def apply_matches(tree, matches)
     if tree[:command][0] == '$'
-      map[tree[:command]]
-    elsif (tree[:children].length) == 1 && (tree[:children][0][:command] == '$body')
-      { command: tree[:command], children: map['$body'] }
+      matches[tree[:command]]
+    elsif (tree[:children].length == 1) && (tree[:children][0][:command] == '$body')
+      { command: tree[:command], children: matches['$body'] }
     else
-      new_children = tree[:children].map {|child| assign_new_branches(child, map)}
+      new_children = tree[:children].map { |child| apply_matches(child, matches) }
       { command: tree[:command], children: new_children }
     end
   end
