@@ -24,10 +24,9 @@ class Interpreter
   end
 
   def eval_file(file)
-    map = eval_templates(@direction == :gc_to_forest)
     files_content = read(file)
     tree = parse(files_content)
-    new_tree = apply_templates(tree, map)
+    new_tree = groundcover(tree, @direction)
     deparse(new_tree)
   end
 

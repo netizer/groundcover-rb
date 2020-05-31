@@ -2,19 +2,39 @@ require 'spec_helper'
 require 'interpreter'
 
 describe Interpreter do
-  it 'compiles groundcover script and produces forest script' do
-    interpreter = Interpreter.new(:gc_to_forest)
-    result = interpreter.eval_file('fixtures/later_now.gc')
-    expected = File.read('fixtures/later_now.forest')
+  describe 'groundcover -> forest' do
+    it 'transpiles an easy case' do
+      interpreter = Interpreter.new(:gc_to_forest)
+      result = interpreter.eval_file('fixtures/small.gc')
+      expected = File.read('fixtures/small.forest')
 
-    expect(expected).to eq(result)
+      expect(result).to eq(expected)
+    end
+
+    it 'transpiles a complex case' do
+      interpreter = Interpreter.new(:gc_to_forest)
+      result = interpreter.eval_file('fixtures/later_now.gc')
+      expected = File.read('fixtures/later_now.forest')
+
+      expect(result).to eq(expected)
+    end
   end
 
-  it 'compiles forest script and produces groundcover script' do
-    interpreter = Interpreter.new(:forest_to_gc)
-    result = interpreter.eval_file('fixtures/later_now.forest')
-    expected = File.read('fixtures/later_now.gc')
+  describe 'forest -> groundcover' do
+    it 'transpiles an easy case' do
+      interpreter = Interpreter.new(:forest_to_gc)
+      result = interpreter.eval_file('fixtures/small.forest')
+      expected = File.read('fixtures/small.gc')
 
-    expect(expected).to eq(result)
+      expect(result).to eq(expected)
+    end
+
+    it 'transpiles an complex case' do
+      interpreter = Interpreter.new(:forest_to_gc)
+      result = interpreter.eval_file('fixtures/later_now.forest')
+      expected = File.read('fixtures/later_now.gc')
+
+      expect(result).to eq(expected)
+    end
   end
 end

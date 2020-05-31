@@ -29,8 +29,7 @@ block
           $body
   block
     data
-      m:set
-        $body:1
+      m:set $body:1
         $body:2
     data
       call
@@ -52,8 +51,7 @@ block
           $body:1
   block
     data
-      m:now_by_name
-        $body:1
+      m:now_by_name $body:1
     data
       call
         data
@@ -66,8 +64,7 @@ block
               $body:1
   block
     data
-      m:now_by_name_with_args
-        $body:1
+      m:now_by_name_with_args $body:1
         $body:2
     data
       call
@@ -100,5 +97,4 @@ block
         data
           testing.log
         block
-          data
-            $body
+          $body

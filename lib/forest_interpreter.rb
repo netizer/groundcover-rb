@@ -110,7 +110,7 @@ module ForestInterpreter
 
   # debugger
   def print_node(node, indent = "")
-    puts indent + node[:command]
+    puts indent + node[:command] + (node[:inline] ? " (inline)" : "")
     return unless node[:children]
 
     indent = indent + "  "

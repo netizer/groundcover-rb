@@ -1,18 +1,16 @@
 m:context
-  m:set
-    first_function
+  m:set first_function
     m:later
       m:testing_log
-        defined first
-  m:set
-    second_function
+        data
+          defined first
+  m:set second_function
     m:later
       m:testing_log
-        defined second
-  m:now_by_name
-    second_function
-  m:now_by_name
-    first_function
+        data
+          defined second
+  m:now_by_name second_function
+  m:now_by_name first_function
   m:assert
     data
       defined second
