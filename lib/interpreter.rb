@@ -33,9 +33,6 @@ class Interpreter
   private
 
   def deparse(tree, indent = 0)
-    if tree.is_a?(Array)
-      byebug
-    end
     head = " " * indent * INDENTATION_BASE + tree[:command]
     has_children = !tree[:children].empty?
     rest = has_children ? tree[:children].map do |ch|
@@ -45,7 +42,12 @@ class Interpreter
   end
 
   def convert_file_name(file_name)
-    new_file = file_name.gsub(/\.tforest\Z/, '.forest')
+    new_file =
+      if @direction == :gc_to_forest
+        file_name.gsub(/\.gc\Z/, '.forest')
+      else
+        file_name.gsub(/\.forest\Z/, '.gc')
+      end
     raise "Output file should not be the same as source file." if file_name == new_file
     new_file
   end
