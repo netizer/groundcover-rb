@@ -28,10 +28,11 @@ module GroundcoverInterpreter
   def apply_templates(tree, templates)
     return tree if tree[:command] == 'data'
 
+    tree = use_first_matching_template_or_copy(tree, templates)
     tree[:children] = tree[:children].map do |child|
       apply_templates(child, templates)
     end
-    use_first_matching_template_or_copy(tree, templates)
+    tree
   end
 
   def inline_children(tree)

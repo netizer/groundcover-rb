@@ -1,6 +1,19 @@
 block
   block
     data
+      m:context_returning_last_value
+        $body
+    data
+      call
+        data
+          cgs.last
+        call
+          data
+            cgs.context
+          block
+            $body
+  block
+    data
       m:assert
         $body
     data
@@ -98,3 +111,12 @@ block
           testing.log
         block
           $body
+  block
+    data
+      m:call $body:1
+        $body:2
+    data
+      call
+        data
+          $body:1
+        $body:2
