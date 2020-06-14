@@ -6,7 +6,6 @@ class Interpreter
   include ForestInterpreter
   include GroundcoverInterpreter
 
-  TEMPLATE_FILE = 'templates.forest'
   DIRECTIONS = [:gc_to_forest, :forest_to_gc]
 
   def initialize(direction = :gc_to_forest)
@@ -23,11 +22,19 @@ class Interpreter
     write(output_file, output_content)
   end
 
+  def eval_file_and_deparse(file)
+    tree = eval_file(file)
+    deparse(tree)
+  end
+
   def eval_file(file)
     files_content = read(file)
+    eval_text(files_content)
+  end
+
+  def eval_text(files_content)
     tree = parse(files_content)
-    new_tree = groundcover(tree, @direction)
-    deparse(new_tree)
+    groundcover(tree, @direction)
   end
 
   private

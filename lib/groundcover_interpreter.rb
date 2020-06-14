@@ -1,7 +1,7 @@
 require 'byebug'
 
 module GroundcoverInterpreter
-  TEMPLATE_FILE = 'templates.forest'
+  TEMPLATE_FILE = File.join(__dir__, '..', 'templates.forest')
 
   private
 
