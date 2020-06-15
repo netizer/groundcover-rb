@@ -3,29 +3,40 @@ module ForestInterpreter
   KEYWORD_PREFIX = 'forest_keyword_'
   FUNCTION_PREFIX = 'forest_'
 
+  attr_accessor :interpreter_line
+  attr_accessor :interpreter_row
+  attr_accessor :interpreter_file
+
   def eval_file(file)
-    files_content = read(file)
-    tree = parse(files_content)
+    tree = parse_file(file)
     evaluate(tree)
   end
 
   private
+
+  def parse_file(file)
+    @interpreter_file = file
+    files_content = read(file)
+    parse(files_content)
+  end
 
   def read(file)
     File.readlines(file)
   end
 
   def parse(lines)
-    current_node = create_node(0, lines[0], nil)
+    current_node = create_node(0, lines[0], nil, line: 1, row: 1)
     root_node = current_node
-    lines[1..-1].each do |line|
-      current_node = parse_line(line, current_node)
+    lines[1..-1].each_with_index do |line, id|
+      current_node = parse_line(line, current_node, id + 2)
     end
     root_node
   end
 
   def evaluate(node)
     method_name = "#{KEYWORD_PREFIX}#{node[:command]}"
+    @interpreter_line = node[:line]
+    @interpreter_row = node[:row]
     send(method_name, node[:children])
   end
 
@@ -55,11 +66,11 @@ module ForestInterpreter
     end.join
   end
 
-  def parse_line(line, current_node)
+  def parse_line(line, current_node, line_nr)
     indent_level, line_content = extract_indentation(line)
     ancestor_level = 1 + current_node[:indent] - indent_level
     parent_node = ancestor(current_node, ancestor_level)
-    new_node = create_node(indent_level, line_content, parent_node)
+    new_node = create_node(indent_level, line_content, parent_node, line: line_nr, row: (indent_level + 1) * 2 + 1)
     parent_node[:children] << new_node
     new_node
   end
@@ -72,7 +83,7 @@ module ForestInterpreter
     ancestor_node
   end
 
-  def create_node(indent_level, line, parent)
+  def create_node(indent_level, line, parent, options = {})
     command = line.strip
     raise "Empty lines in source files are not supported" if command == ""
 
@@ -82,7 +93,9 @@ module ForestInterpreter
       parent: parent,
       children: [],
       command: command,
-      child_id: parent ? parent[:children].length : 0
+      child_id: parent ? parent[:children].length : 0,
+      line: options[:line],
+      row: options[:row]
     }
   end
 
@@ -110,7 +123,7 @@ module ForestInterpreter
 
   # debugger
   def print_node(node, indent = "")
-    puts indent + node[:command] + (node[:inline] ? " (inline)" : "")
+    puts indent + node[:command] + (node[:inline] ? " (inline)" : "") + "(#{node[:line]})"
     return unless node[:children]
 
     indent = indent + "  "

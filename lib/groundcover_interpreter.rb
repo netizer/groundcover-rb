@@ -10,7 +10,17 @@ module GroundcoverInterpreter
     map = eval_templates(forward)
     tree = align_children(tree, false)
     tree = apply_templates(tree, map)
-    inline_children(tree)
+    tree = inline_children(tree)
+    tree = add_parents(tree)
+    tree
+  end
+
+  def add_parents(tree, parent = nil)
+    tree[:parent] = parent
+    tree[:children].each do |child|
+      add_parents(child, tree)
+    end
+    tree
   end
 
   def eval_templates(forward = true)
@@ -56,7 +66,7 @@ module GroundcoverInterpreter
 
     inline_parts = tree[:command].split(' ')
     inline_children = inline_parts[1..-1].map do |child|
-      { command: child, inline: mark, children: [] }
+      { command: child, inline: mark, children: [], line: tree[:line], row: tree[:row] }
     end
     new_children = tree[:children].map do |child|
       align_children(child, mark)
@@ -70,7 +80,7 @@ module GroundcoverInterpreter
   def use_first_matching_template_or_copy(tree, templates)
     templates.each do |template|
       matches = find_matches(template[:pattern], tree)
-      return apply_template(template[:replacement], matches) if matches
+      return apply_template(template[:replacement], matches, tree) if matches
     end
     tree
   end
@@ -93,26 +103,38 @@ module GroundcoverInterpreter
     end
   end
 
-  def apply_template(replacement, matches)
-    apply_matches(deep_copy(replacement), matches)
+  def apply_template(replacement, matches, original_tree)
+    apply_matches(deep_copy(replacement), matches, original_tree)
   end
 
   def deep_copy(tree)
     {
       command: tree[:command],
       inline: tree[:inline],
-      children: tree[:children].map { |child| deep_copy(child) }
+      children: tree[:children].map { |child| deep_copy(child) },
+      line: tree[:line],
+      row: tree[:row]
     }
   end
 
-  def apply_matches(tree, matches)
-    if tree[:command][0] == '$'
-      matches[tree[:command]].merge(inline: tree[:inline])
-    elsif (tree[:children].length == 1) && (tree[:children][0][:command] == '$body')
-      { command: tree[:command], children: matches['$body'], inline: tree[:inline] }
-    else
-      new_children = tree[:children].map { |child| apply_matches(child, matches) }
-      { command: tree[:command], children: new_children, inline: tree[:inline] }
-    end
+  def apply_matches(tree, matches, original_tree)
+    command = tree[:command]
+    match = matches[command]
+    children = tree[:children]
+    result =
+      if command[0] == '$'
+        match
+      elsif (children.length == 1) && (children[0][:command] == '$body')
+        { command: command, children: matches['$body'] }
+      else
+        new_children = children.map { |child| apply_matches(child, matches, original_tree) }
+        { command: command, children: new_children }
+      end
+    # The part of the template that does not correspond to the node
+    # in the original tree, but rather to the node copied
+    # from the templates.forest file, should have line and row of the branch
+    # from the original tree that corresponds to the root of the template.
+    source = match || original_tree
+    result.merge(inline: tree[:inline], line: source[:line], row: source[:row])
   end
 end
