@@ -72,9 +72,8 @@ block
         call
           data
             cgs.get
-          block
-            data
-              $body:1
+          data
+            $body:1
   block
     data
       m:now_by_name_with_args $body:1
@@ -88,9 +87,8 @@ block
           call
             data
               cgs.get
-            block
-              data
-                $body:1
+            data
+              $body:1
   block
     data
       m:later
