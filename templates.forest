@@ -92,13 +92,12 @@ block
   block
     data
       m:later
-        $body
+        $body:1
     data
       call
         data
           ln.later
-        block
-          $body
+        $body:1
   block
     data
       m:testing_log

@@ -11,13 +11,12 @@ call
         call
           data
             ln.later
-          block
-            call
+          call
+            data
+              testing.log
+            block
               data
-                testing.log
-              block
-                data
-                  defined first
+                defined first
     call
       data
         cgs.set
@@ -27,13 +26,12 @@ call
         call
           data
             ln.later
-          block
-            call
+          call
+            data
+              testing.log
+            block
               data
-                testing.log
-              block
-                data
-                  defined second
+                defined second
     call
       data
         ln.now
