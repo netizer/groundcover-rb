@@ -28,6 +28,7 @@ class Interpreter
   end
 
   def eval_file(file)
+    @interpreter_file = file
     files_content = read(file)
     eval_text(files_content)
   end

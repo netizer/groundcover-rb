@@ -95,7 +95,8 @@ module ForestInterpreter
       command: command,
       child_id: parent ? parent[:children].length : 0,
       line: options[:line],
-      row: options[:row]
+      row: options[:row],
+      file: @interpreter_file
     }
   end
 

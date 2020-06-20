@@ -113,7 +113,8 @@ module GroundcoverInterpreter
       inline: tree[:inline],
       children: tree[:children].map { |child| deep_copy(child) },
       line: tree[:line],
-      row: tree[:row]
+      row: tree[:row],
+      file: tree[:file]
     }
   end
 
@@ -135,6 +136,6 @@ module GroundcoverInterpreter
     # from the templates.forest file, should have line and row of the branch
     # from the original tree that corresponds to the root of the template.
     source = match || original_tree
-    result.merge(inline: tree[:inline], line: source[:line], row: source[:row])
+    result.merge(inline: tree[:inline], line: source[:line], row: source[:row], file: source[:file])
   end
 end
