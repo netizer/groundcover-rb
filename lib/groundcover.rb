@@ -9,7 +9,7 @@ module Groundcover
   end
 
   def groundcover__forest_parse_to_forest(file_name)
-    interpreter = Interpreter.new(direction = :gc_to_forest)
+    interpreter = Interpreter.new(direction = :to_forest)
     interpreter.eval_file(file_name)
   end
 end

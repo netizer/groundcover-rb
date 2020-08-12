@@ -6,7 +6,7 @@ module GroundcoverInterpreter
   private
 
   def groundcover(tree, direction)
-    forward = (@direction == :gc_to_forest)
+    forward = (@direction == :to_forest)
     map = eval_templates(forward)
     tree = align_children(tree, false)
     tree = apply_templates(tree, map)

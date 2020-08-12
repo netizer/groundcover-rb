@@ -6,11 +6,11 @@ class Interpreter
   include ForestInterpreter
   include GroundcoverInterpreter
 
-  DIRECTIONS = [:gc_to_forest, :forest_to_gc]
+  DIRECTIONS = [:to_forest, :from_forest]
 
-  def initialize(direction = :gc_to_forest)
+  def initialize(direction = :to_forest)
     unless DIRECTIONS.include? direction
-      rise "Wrong interpretter parameter #{direction}"
+      raise "Wrong interpretter parameter #{direction}"
     end
 
     @direction = direction
@@ -51,7 +51,7 @@ class Interpreter
 
   def convert_file_name(file_name)
     new_file =
-      if @direction == :gc_to_forest
+      if @direction == :to_forest
         file_name.gsub(/\.gc\Z/, '.forest')
       else
         file_name.gsub(/\.forest\Z/, '.gc')

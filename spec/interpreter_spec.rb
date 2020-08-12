@@ -4,7 +4,7 @@ require 'interpreter'
 describe Interpreter do
   describe 'groundcover -> forest' do
     it 'transpiles an easy case' do
-      interpreter = Interpreter.new(:gc_to_forest)
+      interpreter = Interpreter.new(:to_forest)
       result = interpreter.eval_file_and_deparse('fixtures/small.gc')
       expected = File.read('fixtures/small.forest')
 
@@ -12,7 +12,7 @@ describe Interpreter do
     end
 
     it 'transpiles a complex case' do
-      interpreter = Interpreter.new(:gc_to_forest)
+      interpreter = Interpreter.new(:to_forest)
       result = interpreter.eval_file_and_deparse('fixtures/later_now.gc')
       expected = File.read('fixtures/later_now.forest')
 
@@ -22,7 +22,7 @@ describe Interpreter do
 
   describe 'forest -> groundcover' do
     it 'transpiles an easy case' do
-      interpreter = Interpreter.new(:forest_to_gc)
+      interpreter = Interpreter.new(:from_forest)
       result = interpreter.eval_file_and_deparse('fixtures/small.forest')
       expected = File.read('fixtures/small.gc')
 
@@ -30,7 +30,7 @@ describe Interpreter do
     end
 
     it 'transpiles an complex case' do
-      interpreter = Interpreter.new(:forest_to_gc)
+      interpreter = Interpreter.new(:from_forest)
       result = interpreter.eval_file_and_deparse('fixtures/later_now.forest')
       expected = File.read('fixtures/later_now.gc')
 
