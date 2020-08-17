@@ -16,6 +16,13 @@ class Interpreter
     @direction = direction
   end
 
+
+  def eval_file_and_deparse_and_write(file)
+    output_content = eval_file_and_deparse(file)
+    output_file = convert_file_name(file)
+    write(output_file, output_content)
+  end
+
   def eval_file_and_write(file)
     output_content = eval_file(file)
     output_file = convert_file_name(file)
