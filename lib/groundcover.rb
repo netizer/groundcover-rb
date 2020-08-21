@@ -1,5 +1,4 @@
-require 'byebug'
-require 'interpreter'
+require 'groundcover/interpreter'
 
 module Groundcover
   # TODO: not used at the moment
