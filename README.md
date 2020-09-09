@@ -52,7 +52,9 @@ If you want to play with the compilation process, you can remove `fixtures/later
 ruby run.rb fixtures/later_now.gc
 ```
 
-If you'd like to affect the compilation process, check out the file `templatets.forest`. It's basically a list of all patterns that the compiler recognises in Forest and Groundcover code with the info of how they map to themselves. For exampel this part of the templates file:
+If, on the other hand, you'd like Forest to be able to parse Groundcover files, just include module Lamb to Forest Dependencies (which is already done if you use `bin/forest.rb` from `forest-rb` repository). To see how it's done, you can also check out the test in `spec/ruby_usage_spec.rb` in that repository.
+
+If you'd like to affect the compilation process, check out the file `templates.forest`. It's basically a list of all patterns that the compiler recognises in Forest and Groundcover code with the info of how they map to themselves. For example this part of the templates file:
 
 ```forest
 block
