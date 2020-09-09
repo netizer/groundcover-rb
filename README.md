@@ -2,6 +2,8 @@
 
 Groundcover is a programming language. It's a frontend of Forest language, which means that you can do with it whatever you can do with Forest.
 
+For more info about Forest, check out https://github.com/netizer/forest-rb
+
 I implemented Forest because I wanted to implement Lamb language, and somehow implementing the two of them was easier than implementing one. But Forest is damn hard to write (it's extremely verbose), so one day I built Groundcover so I didn't have to ever write code in Forest (Forest is for machines, not people).
 
 It has a nice feature - it has a 1-1 mapping to Forest, so you can compile it to Forest, then compile it back to Greoundcover and you'll get exactly the initial code. It's cool because I keep working on Groundcover, and thanks to that I don't have to manually translate the old Groundcover code to the the new format. I just use the old compiler to translate it back to Forest, and then the new compiler to translate it again to Groundcover. I don't know any compiler that does that, and I wanted to refer to it somehow (it sucks to talk about things without using names - I'm sure the ones who did not like Voldemort know exactly what I'm talking about), so I ended up refering to it as **symmetric compilation**. If you know a better name, or, even better, if you know about an existing project with such feature, you'll make my day if you create a github issue for this repo and suggest a better name.
