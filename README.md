@@ -94,4 +94,4 @@ It is work in progress. I think it will become even more verbose pretty soon. I 
 
 ## Community
 
-I experiment with a couple of ideas, and you can expect a lot to chages, but thanks to symmetric compilation, the changes should not cause any headaches. If you find this project interesting, feel free to create github issues with suggestions, comments or even questions. This way we can communicate in an async way and others could benefit from the conversation.
+I experiment with a couple of ideas, and you can expect a lot to chages, but thanks to symmetric compilation, the changes should not cause any headaches. If you find this project interesting, feel free to create github issues with suggestions, comments or even questions. This way we can communicate in an async way and others could benefit from the conversation. A good starting point to play with Forest and with Groundcover is to follow the instructions in https://github.com/netizer/forest-utils
